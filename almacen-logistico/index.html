@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Logístico — Almacén Municipal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            corporate: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+  <div id="app-shell" class="flex min-h-screen">
+
+    <!-- Overlay móvil -->
+    <div id="sidebar-overlay" class="sidebar-overlay hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar"
+      class="sidebar-mobile fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 flex flex-col shrink-0 md:translate-x-0">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-3 px-5 py-5 border-b border-slate-700/60">
+        <div class="w-10 h-10 rounded-lg bg-blue-700 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-white font-bold text-sm leading-tight">Almacén Municipal</p>
+          <p class="text-slate-400 text-xs">Sistema Logístico</p>
+        </div>
+      </div>
+
+      <!-- Navegación -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <p class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Menú Principal</p>
+
+        <a href="#" class="sidebar-link active" data-route="dashboard">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Panel Principal
+        </a>
+
+        <a href="#" class="sidebar-link" data-route="maestros" data-modulo="maestros">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+          </svg>
+          Maestros
+        </a>
+
+        <a href="#" class="sidebar-link" data-route="ingresos" data-modulo="ingresos">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+          </svg>
+          Ingresos
+        </a>
+
+        <a href="#" class="sidebar-link" data-route="salidas" data-modulo="salidas">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+          </svg>
+          Salidas
+        </a>
+
+        <a href="#" class="sidebar-link" data-route="reportes" data-modulo="reportes">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Reportes
+        </a>
+      </nav>
+
+      <!-- Pie del sidebar -->
+      <div class="px-4 py-4 border-t border-slate-700/60">
+        <p class="text-xs text-slate-500 text-center">Municipalidad © 2026</p>
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- Header -->
+      <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="flex items-center justify-between px-4 md:px-6 h-16">
+          <div class="flex items-center gap-3">
+            <button id="btn-menu" class="md:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-600" aria-label="Abrir menú">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
+            <div>
+              <h1 id="page-title" class="text-lg font-semibold text-slate-800">Panel Principal</h1>
+              <p class="text-xs text-slate-400 hidden sm:block">
+                Inicio / <span id="page-breadcrumb">Panel Principal</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="hidden sm:flex items-center gap-3">
+              <div id="user-avatar"
+                class="w-9 h-9 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center">
+                AD
+              </div>
+              <div class="text-right">
+                <p id="user-name" class="text-sm font-medium text-slate-800 leading-tight">Usuario</p>
+                <span id="user-role" class="text-xs font-semibold px-2 py-0.5 rounded-full badge-admin">Administrador</span>
+              </div>
+            </div>
+            <button id="btn-logout"
+              class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
+              title="Cerrar sesión">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              <span class="hidden sm:inline">Salir</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Área de contenido dinámico -->
+      <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+        <div id="main-content">
+          <div class="page-loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- CDNs para módulos futuros -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <script src="js/auth.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
+  <script src="js/maestros.js?v=2"></script>
+  <script src="js/ingresos.js?v=2"></script>
+  <script src="js/salidas.js?v=2"></script>
+  <script src="js/reportes.js?v=2"></script>
+
+<!-- Template for ingresos.html -->
+  <template id="tpl-ingresos">
+<!-- ingresos.html — Vista del módulo de Ingresos de Stock -->
+<div id="ingresos-module" class="space-y-6">
+  <!-- Toast de éxito -->
+  <div id="ingresos-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="ingresos-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Ingreso de Stock</h2>
+      <p class="text-sm text-slate-500">Registre y controle los ingresos de materiales al almacén municipal.</p>
+    </div>
+    <div id="ingresos-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Formulario de Registro -->
+  <div id="ingresos-form-container" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      Registrar Nuevo Ingreso
+    </h3>
+    <form id="ingresos-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- N° Orden de Compra -->
+      <div class="ingresos-field">
+        <label for="ingreso-oc" class="block text-sm font-bold text-slate-800 mb-1">N° Orden de Compra</label>
+        <input type="text" id="ingreso-oc" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="OC-XXXX" required>
+      </div>
+
+      <!-- Buscar Material (Autocomplete) -->
+      <div class="ingresos-field">
+        <label for="ingreso-material" class="block text-sm font-bold text-slate-800 mb-1">Buscar Material</label>
+        <input type="text" id="ingreso-material" list="materiales-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba código o nombre..." required>
+        <datalist id="materiales-list"></datalist>
+      </div>
+
+      <!-- Unidad de Medida (Autocompletada, Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-unidad" class="block text-sm font-bold text-slate-800 mb-1">Unidad de Medida</label>
+        <input type="text" id="ingreso-unidad" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="Autocompletado">
+      </div>
+
+      <!-- Buscar Área (Autocomplete) -->
+      <div class="ingresos-field col-span-1 md:col-span-2">
+        <label for="ingreso-area" class="block text-sm font-bold text-slate-800 mb-1">Área Solicitante</label>
+        <input type="text" id="ingreso-area" list="areas-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba nombre del área..." required>
+        <datalist id="areas-list"></datalist>
+      </div>
+
+      <!-- Clasificador -->
+      <div class="ingresos-field">
+        <label for="ingreso-clasificador" class="block text-sm font-bold text-slate-800 mb-1">Clasificador</label>
+        <select id="ingreso-clasificador" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+          <option value="">Seleccione clasificador</option>
+        </select>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="ingresos-field">
+        <label for="ingreso-cantidad" class="block text-sm font-bold text-slate-800 mb-1">Cantidad</label>
+        <input type="number" id="ingreso-cantidad" min="1" step="1" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0" required>
+      </div>
+
+      <!-- Precio Unitario -->
+      <div class="ingresos-field">
+        <label for="ingreso-precio" class="block text-sm font-bold text-slate-800 mb-1">Precio Unitario (S/.)</label>
+        <input type="number" id="ingreso-precio" min="0.01" step="0.01" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0.00" required>
+      </div>
+
+      <!-- Total (Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-total" class="block text-sm font-bold text-slate-800 mb-1">Total (S/.)</label>
+        <input type="text" id="ingreso-total" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="0.00">
+      </div>
+
+      <!-- Fecha -->
+      <div class="ingresos-field">
+        <label for="ingreso-fecha" class="block text-sm font-bold text-slate-800 mb-1">Fecha</label>
+        <input type="date" id="ingreso-fecha" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+      </div>
+
+      <!-- N° NEA -->
+      <div class="ingresos-field">
+        <label for="ingreso-nea" class="block text-sm font-bold text-slate-800 mb-1">N° NEA</label>
+        <input type="text" id="ingreso-nea" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="NEA-XXXX" required>
+      </div>
+
+      <!-- N° PECOSA -->
+      <div class="ingresos-field">
+        <label for="ingreso-pecosa" class="block text-sm font-bold text-slate-800 mb-1">N° PECOSA</label>
+        <input type="text" id="ingreso-pecosa" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="PECOSA-XXXX" required>
+      </div>
+
+      <!-- Botón de Envío -->
+      <div class="col-span-1 md:col-span-3 flex justify-end pt-2">
+        <button type="submit" id="btn-registrar-ingreso" class="px-6 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-lg text-sm transition shadow-lg shadow-blue-900/25">
+          Registrar Ingreso
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Últimos Ingresos -->
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Últimos Ingresos Registrados</h3>
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="ingresos-table w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200">
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Fecha</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">N° OC</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Material</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Área</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Cant.</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Precio (S/.)</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Total (S/.)</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">NEA</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">PECOSA</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-ingresos" class="divide-y divide-slate-100">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-ingresos" class="hidden text-center text-sm text-slate-500 py-8">No se han registrado ingresos aún.</p>
+  </div>
+</div>
+
+<style>
+  .ingresos-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ingresos-table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+  }
+  .ingresos-table tbody tr:hover { background-color: #f8fafc; }
+  #ingresos-toast.show { display: block !important; transform: translateX(0); }
+</style>
+  </template>
+
+<!-- Template for reportes.html -->
+  <template id="tpl-reportes">
+<!-- reportes.html — Vista del módulo de Reportes y Dashboard -->
+<!-- Pendiente de implementación: ver js/reportes.js -->
+
+<div class="page-placeholder">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+  </svg>
+  <h3 class="text-lg font-semibold text-slate-700 mb-1">Módulo de Reportes</h3>
+  <p class="text-sm">Dashboard analítico y exportación de reportes — próximamente.</p>
+</div>
+
+  </template>
+
+  <!-- Template for maestros.html -->
+  <template id="tpl-maestros">
+<!-- Módulo Maestros — Materiales, Áreas, Responsables, Clasificadores -->
+<div id="maestros-module" class="space-y-4">
+
+  <!-- Toast de éxito -->
+  <div id="maestros-toast"
+    class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="maestros-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Acceso denegado (no administrador) -->
+  <div id="maestros-denied" class="hidden page-placeholder">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+    </svg>
+    <h3 class="text-lg font-semibold text-slate-700 mb-1">Acceso restringido</h3>
+    <p class="text-sm">El módulo de Maestros solo está disponible para el rol Administrador.</p>
+  </div>
+
+  <!-- Contenido principal del módulo -->
+  <div id="maestros-content" class="hidden space-y-4">
+
+    <!-- Encabezado -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-800">Gestión de Maestros</h2>
+        <p class="text-sm text-slate-500">Administre materiales, áreas, responsables y clasificadores del almacén.</p>
+      </div>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div class="maestros-tabs flex flex-wrap border-b border-slate-200 bg-slate-50 gap-1 px-2 pt-2">
+        <button type="button" class="maestros-tab active" data-tab="materiales">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          Materiales
+        </button>
+        <button type="button" class="maestros-tab" data-tab="areas">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          Áreas Usuarias
+        </button>
+        <button type="button" class="maestros-tab" data-tab="responsables">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Responsables
+        </button>
+        <button type="button" class="maestros-tab" data-tab="clasificadores">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          Clasificadores
+        </button>
+      </div>
+
+      <!-- Panel: Materiales -->
+      <div id="panel-materiales" class="maestros-panel p-4 md:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div class="relative flex-1 max-w-md">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-materiales" placeholder="Buscar material por nombre..."
+              class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+          </div>
+          <button type="button" id="btn-nuevo-material"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo Material
+          </button>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="maestros-table w-full text-sm">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre / Detalle</th>
+                <th>Unidad de Medida</th>
+                <th class="text-right">Stock actual</th>
+                <th class="text-center w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-materiales"></tbody>
+          </table>
+        </div>
+        <p id="empty-materiales" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron materiales.</p>
+      </div>
+
+      <!-- Panel: Áreas -->
+      <div id="panel-areas" class="maestros-panel hidden p-4 md:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div class="relative flex-1 max-w-md">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-areas" placeholder="Buscar área por nombre..."
+              class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+          </div>
+          <button type="button" id="btn-nueva-area"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nueva Área
+          </button>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="maestros-table w-full text-sm">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre del Área</th>
+                <th>Responsable Asignado</th>
+                <th class="text-center w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-areas"></tbody>
+          </table>
+        </div>
+        <p id="empty-areas" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron áreas.</p>
+      </div>
+
+      <!-- Panel: Responsables -->
+      <div id="panel-responsables" class="maestros-panel hidden p-4 md:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div class="relative flex-1 max-w-md">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-responsables" placeholder="Buscar responsable por nombre..."
+              class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+          </div>
+          <button type="button" id="btn-nuevo-responsable"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo Responsable
+          </button>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="maestros-table w-full text-sm">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>DNI</th>
+                <th>Área Asignada</th>
+                <th class="text-center w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-responsables"></tbody>
+          </table>
+        </div>
+        <p id="empty-responsables" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron responsables.</p>
+      </div>
+
+      <!-- Panel: Clasificadores -->
+      <div id="panel-clasificadores" class="maestros-panel hidden p-4 md:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div class="relative flex-1 max-w-md">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" id="search-clasificadores" placeholder="Buscar clasificador por detalle..."
+              class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+          </div>
+          <button type="button" id="btn-nuevo-clasificador"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium rounded-lg transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo Clasificador
+          </button>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="maestros-table w-full text-sm">
+            <thead>
+              <tr>
+                <th>N° Clasificador</th>
+                <th>Detalle</th>
+                <th class="text-center w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-clasificadores"></tbody>
+          </table>
+        </div>
+        <p id="empty-clasificadores" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron clasificadores.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal formulario genérico -->
+  <div id="maestros-modal" class="maestros-modal hidden">
+    <div class="maestros-modal-backdrop"></div>
+    <div class="maestros-modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="maestros-modal-title" class="text-lg font-semibold text-slate-800">Formulario</h3>
+        <button type="button" id="maestros-modal-close" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <form id="maestros-form" class="flex flex-col gap-4"></form>
+    </div>
+  </div>
+
+  <!-- Modal confirmación eliminar -->
+  <div id="maestros-delete-modal" class="maestros-modal hidden">
+    <div class="maestros-modal-backdrop"></div>
+    <div class="maestros-modal-box max-w-md">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-800">Confirmar eliminación</h3>
+      </div>
+      <p id="maestros-delete-msg" class="text-sm text-slate-600 mb-6">¿Está seguro de eliminar este registro?</p>
+      <div class="flex justify-end gap-3">
+        <button type="button" id="maestros-delete-cancel"
+          class="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+          Cancelar
+        </button>
+        <button type="button" id="maestros-delete-confirm"
+          class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .maestros-tabs {
+    row-gap: 0.25rem;
+  }
+  .maestros-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.5rem 0.5rem 0 0;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .maestros-tab + .maestros-tab {
+    margin-left: 0.5rem;
+  }
+  .maestros-tab:hover { color: #1e40af; background: #f1f5f9; }
+  .maestros-tab.active {
+    color: #1e40af;
+    background: #fff;
+    border-color: #e2e8f0;
+    border-bottom-color: #fff;
+    box-shadow: 0 -1px 0 #fff;
+  }
+  .maestros-panel {
+    min-height: 200px;
+  }
+  .maestros-table thead tr { background: #f8fafc; }
+  .maestros-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .maestros-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  .maestros-table tbody tr:hover { background: #f8fafc; }
+  .maestros-table .codigo-cell { font-family: ui-monospace, monospace; font-size: 0.75rem; color: #1d4ed8; }
+  .maestros-btn-icon {
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    transition: background 0.15s;
+  }
+  .maestros-btn-edit { color: #2563eb; }
+  .maestros-btn-edit:hover { background: #eff6ff; }
+  .maestros-btn-delete { color: #dc2626; }
+  .maestros-btn-delete:hover { background: #fef2f2; }
+  .maestros-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .maestros-modal.hidden { display: none; }
+  .maestros-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+  }
+  .maestros-modal-box {
+    position: relative;
+    background: #fff;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 28rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .maestros-field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.375rem;
+  }
+  .maestros-field input,
+  .maestros-field select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #cbd5e1;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .maestros-field input:focus,
+  .maestros-field select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .maestros-field input[readonly] { background-color: #f1f5f9; color: #64748b; }
+  #maestros-toast.show { display: block !important; transform: translateX(0); }
+</style>
+
+  </template>
+
+  <!-- Template for ingresos.html -->
+  <template id="tpl-ingresos">
+<!-- ingresos.html — Vista del módulo de Ingresos de Stock -->
+<div id="ingresos-module" class="space-y-6">
+  <!-- Toast de éxito -->
+  <div id="ingresos-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="ingresos-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Ingreso de Stock</h2>
+      <p class="text-sm text-slate-500">Registre y controle los ingresos de materiales al almacén municipal.</p>
+    </div>
+    <div id="ingresos-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Formulario de Registro -->
+  <div id="ingresos-form-container" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      Registrar Nuevo Ingreso
+    </h3>
+    <form id="ingresos-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- N° Orden de Compra -->
+      <div class="ingresos-field">
+        <label for="ingreso-oc" class="block text-sm font-bold text-slate-800 mb-1">N° Orden de Compra</label>
+        <input type="text" id="ingreso-oc" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="OC-XXXX" required>
+      </div>
+
+      <!-- Buscar Material (Autocomplete) -->
+      <div class="ingresos-field">
+        <label for="ingreso-material" class="block text-sm font-bold text-slate-800 mb-1">Buscar Material</label>
+        <input type="text" id="ingreso-material" list="materiales-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba código o nombre..." required>
+        <datalist id="materiales-list"></datalist>
+      </div>
+
+      <!-- Unidad de Medida (Autocompletada, Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-unidad" class="block text-sm font-bold text-slate-800 mb-1">Unidad de Medida</label>
+        <input type="text" id="ingreso-unidad" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="Autocompletado">
+      </div>
+
+      <!-- Buscar Área (Autocomplete) -->
+      <div class="ingresos-field col-span-1 md:col-span-2">
+        <label for="ingreso-area" class="block text-sm font-bold text-slate-800 mb-1">Área Solicitante</label>
+        <input type="text" id="ingreso-area" list="areas-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba nombre del área..." required>
+        <datalist id="areas-list"></datalist>
+      </div>
+
+      <!-- Clasificador -->
+      <div class="ingresos-field">
+        <label for="ingreso-clasificador" class="block text-sm font-bold text-slate-800 mb-1">Clasificador</label>
+        <select id="ingreso-clasificador" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+          <option value="">Seleccione clasificador</option>
+        </select>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="ingresos-field">
+        <label for="ingreso-cantidad" class="block text-sm font-bold text-slate-800 mb-1">Cantidad</label>
+        <input type="number" id="ingreso-cantidad" min="1" step="1" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0" required>
+      </div>
+
+      <!-- Precio Unitario -->
+      <div class="ingresos-field">
+        <label for="ingreso-precio" class="block text-sm font-bold text-slate-800 mb-1">Precio Unitario (S/.)</label>
+        <input type="number" id="ingreso-precio" min="0.01" step="0.01" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0.00" required>
+      </div>
+
+      <!-- Total (Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-total" class="block text-sm font-bold text-slate-800 mb-1">Total (S/.)</label>
+        <input type="text" id="ingreso-total" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="0.00">
+      </div>
+
+      <!-- Fecha -->
+      <div class="ingresos-field">
+        <label for="ingreso-fecha" class="block text-sm font-bold text-slate-800 mb-1">Fecha</label>
+        <input type="date" id="ingreso-fecha" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+      </div>
+
+      <!-- N° NEA -->
+      <div class="ingresos-field">
+        <label for="ingreso-nea" class="block text-sm font-bold text-slate-800 mb-1">N° NEA</label>
+        <input type="text" id="ingreso-nea" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="NEA-XXXX" required>
+      </div>
+
+      <!-- N° PECOSA -->
+      <div class="ingresos-field">
+        <label for="ingreso-pecosa" class="block text-sm font-bold text-slate-800 mb-1">N° PECOSA</label>
+        <input type="text" id="ingreso-pecosa" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="PECOSA-XXXX" required>
+      </div>
+
+      <!-- Botón de Envío -->
+      <div class="col-span-1 md:col-span-3 flex justify-end pt-2">
+        <button type="submit" id="btn-registrar-ingreso" class="px-6 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-lg text-sm transition shadow-lg shadow-blue-900/25">
+          Registrar Ingreso
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Últimos Ingresos -->
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Últimos Ingresos Registrados</h3>
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="ingresos-table w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200">
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Fecha</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">N° OC</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Material</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Área</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Cant.</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Precio (S/.)</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Total (S/.)</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">NEA</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">PECOSA</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-ingresos" class="divide-y divide-slate-100">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-ingresos" class="hidden text-center text-sm text-slate-500 py-8">No se han registrado ingresos aún.</p>
+  </div>
+</div>
+
+<style>
+  .ingresos-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ingresos-table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+  }
+  .ingresos-table tbody tr:hover { background-color: #f8fafc; }
+  #ingresos-toast.show { display: block !important; transform: translateX(0); }
+</style>
+
+  </template>
+
+  <!-- Template for salidas.html -->
+  <template id="tpl-salidas">
+<!-- salidas.html — Vista del módulo de Papeletas de Salida de Stock -->
+<div id="salidas-module" class="space-y-6">
+  <!-- Toast de éxito -->
+  <div id="salidas-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="salidas-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Papeleta de Salida</h2>
+      <p class="text-sm text-slate-500">Gestione y documente las salidas de materiales del almacén municipal.</p>
+    </div>
+    <div id="salidas-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Formulario de Registro (Papeleta de Salida) -->
+  <div id="salidas-form-container" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+      <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      Nueva Papeleta de Salida
+    </h3>
+    <form id="salidas-form" class="space-y-6">
+      
+      <!-- Datos de Cabecera -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- N° Correlativo -->
+        <div class="salidas-field">
+          <label for="salida-correlativo" class="block text-sm font-bold text-slate-800 mb-1">N° Correlativo</label>
+          <input type="text" id="salida-correlativo" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm font-mono text-blue-700" readonly placeholder="SALE-XXX">
+        </div>
+
+        <!-- Fecha -->
+        <div class="salidas-field">
+          <label for="salida-fecha" class="block text-sm font-bold text-slate-800 mb-1">Fecha</label>
+          <input type="date" id="salida-fecha" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+        </div>
+
+        <!-- Buscar Área Usuaria (Autocomplete) -->
+        <div class="salidas-field">
+          <label for="salida-area" class="block text-sm font-bold text-slate-800 mb-1">Área Destino</label>
+          <input type="text" id="salida-area" list="salidas-areas-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba código o nombre..." required>
+          <datalist id="salidas-areas-list"></datalist>
+        </div>
+
+        <!-- Responsable (Autocompletado, Readonly) -->
+        <div class="salidas-field">
+          <label for="salida-responsable" class="block text-sm font-bold text-slate-800 mb-1">Responsable Receptor</label>
+          <input type="text" id="salida-responsable" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="Autocompletado">
+        </div>
+      </div>
+
+      <!-- Tabla de Ítems (Materiales a entregar) -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Detalle de Materiales</h4>
+          <button type="button" id="btn-agregar-item" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-semibold rounded-lg text-xs transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Agregar ítem
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="w-full text-sm" id="tabla-items-salida">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+                <th class="p-3 text-center w-12">N°</th>
+                <th class="p-3 text-left w-64">Buscar Material (Código/Iniciales)</th>
+                <th class="p-3 text-left">Detalle / Material</th>
+                <th class="p-3 text-left w-36">U. Medida</th>
+                <th class="p-3 text-right w-28">Cant.</th>
+                <th class="p-3 text-center w-16">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-items-salida" class="divide-y divide-slate-100">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sección de Firmas (Vista previa) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-6">
+        <!-- Lado izquierdo: Almacén -->
+        <div class="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+          <div class="w-48 border-b-2 border-slate-400 border-dashed mt-8 mb-2"></div>
+          <span id="salida-firma-encargado" class="text-xs font-bold text-slate-700">Encargado de Almacén</span>
+          <span class="text-[10px] text-slate-400">ALMACÉN MUNICIPAL</span>
+        </div>
+
+        <!-- Lado derecho: Área usuaria conforme -->
+        <div class="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+          <div class="w-48 border-b-2 border-slate-400 border-dashed mt-8 mb-2"></div>
+          <span id="salida-firma-receptor" class="text-xs font-bold text-slate-700">Responsable del Área</span>
+          <span class="text-[10px] text-slate-400">CONFORME RECEPTOR</span>
+        </div>
+      </div>
+
+      <!-- Botón de Envío -->
+      <div class="flex justify-end pt-2">
+        <button type="submit" id="btn-registrar-salida" class="px-6 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-lg text-sm transition shadow-lg shadow-blue-900/25">
+          Registrar y Guardar Salida
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Últimas Salidas -->
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Últimas Salidas Registradas</h3>
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="salidas-table w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+            <th class="p-3 text-left">Correlativo</th>
+            <th class="p-3 text-left">Fecha</th>
+            <th class="p-3 text-left">Área</th>
+            <th class="p-3 text-left">Responsable</th>
+            <th class="p-3 text-right">N° Ítems</th>
+            <th class="p-3 text-center w-36">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-salidas" class="divide-y divide-slate-100">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-salidas" class="hidden text-center text-sm text-slate-500 py-8">No se han registrado salidas de materiales aún.</p>
+  </div>
+
+  <!-- Modal para ver detalle de salida -->
+  <div id="salidas-view-modal" class="maestros-modal hidden">
+    <div class="maestros-modal-backdrop"></div>
+    <div class="maestros-modal-box max-w-2xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="text-base font-bold text-slate-800" id="salida-view-title">Detalle de Salida</h3>
+        <button type="button" id="salida-view-close" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="salida-view-detail" class="space-y-4 text-sm">
+        <!-- Dinámico -->
+      </div>
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-4 mt-6">
+        <button type="button" id="btn-imprimir-modal" class="px-4 py-2 text-sm font-semibold text-white bg-blue-800 hover:bg-blue-900 rounded-lg transition">
+          Imprimir Papeleta
+        </button>
+        <button type="button" id="btn-cerrar-modal" class="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .salidas-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .salidas-table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+  }
+  .salidas-table tbody tr:hover { background-color: #f8fafc; }
+  #salidas-toast.show { display: block !important; transform: translateX(0); }
+</style>
+  </template>
+
+  <template id="tpl-reportes">
+<!-- reportes.html — Vista del módulo de Reportes y Dashboard -->
+<div id="reportes-module" class="space-y-6">
+  <!-- Toast de éxito/error -->
+  <div id="reportes-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="reportes-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Reportes y Dashboard</h2>
+      <p class="text-sm text-slate-500">Visualice estadísticas de stock, movimientos e historial de Kardex.</p>
+    </div>
+    <div id="reportes-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Pestañas de Navegación -->
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="flex flex-wrap border-b border-slate-200 bg-slate-50 gap-1 px-2 pt-2">
+      <button type="button" class="reportes-tab active" data-tab="dashboard">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/>
+        </svg>
+        Dashboard
+      </button>
+      <button type="button" class="reportes-tab" data-tab="stock">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        Control de Stock
+      </button>
+      <button type="button" class="reportes-tab" data-tab="kardex">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        Kardex por Material
+      </button>
+      <button type="button" class="reportes-tab" data-tab="movimientos">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        Historial de Movimientos
+      </button>
+    </div>
+
+    <!-- Pestaña 1: Dashboard -->
+    <div id="panel-dashboard" class="reportes-panel p-5 space-y-6">
+      <!-- Tarjetas de resumen -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Materiales</p>
+            <h4 class="text-2xl font-bold text-blue-900 mt-1" id="dash-total-materiales">0</h4>
+          </div>
+          <div class="p-3 bg-blue-100/50 rounded-lg text-blue-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Áreas</p>
+            <h4 class="text-2xl font-bold text-indigo-900 mt-1" id="dash-total-areas">0</h4>
+          </div>
+          <div class="p-3 bg-indigo-100/50 rounded-lg text-indigo-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Unidades en Stock</p>
+            <h4 class="text-2xl font-bold text-emerald-900 mt-1" id="dash-unidades-stock">0</h4>
+          </div>
+          <div class="p-3 bg-emerald-100/50 rounded-lg text-emerald-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h-6a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6m-3-4V3a1 1 0 011-1h2a1 1 0 011 1v3M9 7V5h6v2M9 11v4m6-4v4m-3-4v4"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Movimientos del Mes</p>
+            <h4 class="text-2xl font-bold text-purple-900 mt-1" id="dash-movimientos-mes">0</h4>
+          </div>
+          <div class="p-3 bg-purple-100/50 rounded-lg text-purple-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Top 10 Materiales con más Stock</h4>
+          <div class="relative h-72">
+            <canvas id="chart-top-stock"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4">
+          <h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Distribución de Salidas por Área</h4>
+          <div class="relative h-72 flex justify-center items-center">
+            <canvas id="chart-salidas-area"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-xl p-4 lg:col-span-2">
+          <h4 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wide">Ingresos vs Salidas Mensuales (Últimos 6 meses)</h4>
+          <div class="relative h-80">
+            <canvas id="chart-ingresos-salidas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestaña 2: Control de Stock -->
+    <div id="panel-stock" class="reportes-panel p-5 space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" id="stock-search" placeholder="Buscar material por nombre o código..."
+            class="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+        </div>
+        
+        <button type="button" id="btn-exportar-stock" class="btn-export inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg transition shadow-md shadow-emerald-700/20 disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Exportar a Excel
+        </button>
+      </div>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-sm" id="tabla-stock">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+              <th class="p-3 text-left w-36">Código</th>
+              <th class="p-3 text-left">Material</th>
+              <th class="p-3 text-left w-36">Unidad</th>
+              <th class="p-3 text-right w-36">Stock Actual</th>
+              <th class="p-3 text-center w-36">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-stock" class="divide-y divide-slate-100">
+            <!-- Dinámico -->
+          </tbody>
+        </table>
+      </div>
+      <p id="empty-stock" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron materiales.</p>
+    </div>
+
+    <!-- Pestaña 3: Kardex por Material -->
+    <div id="panel-kardex" class="reportes-panel p-5 space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-end gap-4 bg-slate-50 border border-slate-200/60 p-4 rounded-xl">
+        <div class="flex-1">
+          <label for="kardex-material-select" class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1.5">Seleccionar Material</label>
+          <select id="kardex-material-select" class="w-full p-2.5 border border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500">
+            <option value="">Seleccione un material...</option>
+          </select>
+        </div>
+        
+        <button type="button" id="btn-exportar-kardex" class="btn-export inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg transition shadow-md shadow-emerald-700/20 disabled:opacity-50 disabled:cursor-not-allowed h-10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Exportar Kardex
+        </button>
+      </div>
+
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-sm" id="tabla-kardex">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+              <th class="p-3 text-left w-32">Fecha</th>
+              <th class="p-3 text-left w-32">Tipo</th>
+              <th class="p-3 text-left w-40">Documento</th>
+              <th class="p-3 text-left">Área Usuaria / Detalle</th>
+              <th class="p-3 text-right w-32">Cantidad</th>
+              <th class="p-3 text-right w-36">Stock Resultante</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-kardex" class="divide-y divide-slate-100">
+            <!-- Dinámico -->
+            <tr>
+              <td colspan="6" class="p-6 text-center text-slate-400">Seleccione un material para ver su Kardex de movimientos.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p id="empty-kardex" class="hidden text-center text-sm text-slate-500 py-8">Este material no registra movimientos en el sistema.</p>
+    </div>
+
+    <!-- Pestaña 4: Historial de Movimientos -->
+    <div id="panel-movimientos" class="reportes-panel p-5 space-y-4 hidden">
+      <!-- Filtros Combinables -->
+      <div class="bg-slate-50 border border-slate-200/60 p-4 rounded-xl space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <!-- Área -->
+          <div>
+            <label for="filtro-area" class="block text-xs font-bold text-slate-600 uppercase mb-1">Área Usuaria</label>
+            <select id="filtro-area" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+              <option value="">Todas las áreas</option>
+            </select>
+          </div>
+
+          <!-- Tipo -->
+          <div>
+            <label for="filtro-tipo" class="block text-xs font-bold text-slate-600 uppercase mb-1">Tipo Movimiento</label>
+            <select id="filtro-tipo" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+              <option value="">Todos</option>
+              <option value="INGRESO">Ingresos (Ingreso Stock)</option>
+              <option value="SALIDA">Salidas (Papeletas)</option>
+            </select>
+          </div>
+
+          <!-- Rango Fechas Desde -->
+          <div>
+            <label for="filtro-fecha-desde" class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha Desde</label>
+            <input type="date" id="filtro-fecha-desde" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+          </div>
+
+          <!-- Rango Fechas Hasta -->
+          <div>
+            <label for="filtro-fecha-hasta" class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha Hasta</label>
+            <input type="date" id="filtro-fecha-hasta" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <!-- N° OC -->
+          <div>
+            <label for="filtro-oc" class="block text-xs font-bold text-slate-600 uppercase mb-1">N° Orden Compra</label>
+            <input type="text" id="filtro-oc" placeholder="Ej: OC-001" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+          </div>
+
+          <!-- N° NEA -->
+          <div>
+            <label for="filtro-nea" class="block text-xs font-bold text-slate-600 uppercase mb-1">N° NEA</label>
+            <input type="text" id="filtro-nea" placeholder="Ej: NEA-001" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+          </div>
+
+          <!-- N° PECOSA -->
+          <div>
+            <label for="filtro-pecosa" class="block text-xs font-bold text-slate-600 uppercase mb-1">N° PECOSA</label>
+            <input type="text" id="filtro-pecosa" placeholder="Ej: PECOSA-001" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+          </div>
+
+          <!-- Clasificador -->
+          <div>
+            <label for="filtro-clasificador" class="block text-xs font-bold text-slate-600 uppercase mb-1">Clasificador</label>
+            <select id="filtro-clasificador" class="w-full p-2 border border-slate-300 bg-white rounded-lg text-xs focus:outline-none focus:border-blue-500">
+              <option value="">Todos los clasificadores</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="btn-limpiar-filtros" class="px-3.5 py-1.5 border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded-lg transition">
+            Limpiar Filtros
+          </button>
+          <button type="button" id="btn-exportar-movimientos" class="btn-export inline-flex items-center gap-1.5 px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg transition shadow-md shadow-emerald-700/20 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Exportar Historial
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Movimientos Filtrados -->
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-sm" id="tabla-movimientos">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+              <th class="p-3 text-left w-24">Fecha</th>
+              <th class="p-3 text-left w-24">Tipo</th>
+              <th class="p-3 text-left">Material</th>
+              <th class="p-3 text-left w-48">Área Usuaria</th>
+              <th class="p-3 text-right w-24">Cant.</th>
+              <th class="p-3 text-left w-28">Doc. / Ref.</th>
+              <th class="p-3 text-left w-32">Clasificador</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-movimientos" class="divide-y divide-slate-100">
+            <!-- Dinámico -->
+          </tbody>
+        </table>
+      </div>
+      <p id="empty-movimientos" class="hidden text-center text-sm text-slate-500 py-8">No se encontraron movimientos con los filtros seleccionados.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Estilos específicos para pestañas de reportes */
+  .reportes-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .reportes-tab:hover {
+    color: #1e3a8a;
+    background-color: #f1f5f9;
+  }
+  .reportes-tab.active {
+    color: #1d4ed8;
+    border-bottom-color: #1d4ed8;
+    background-color: #ffffff;
+  }
+  .reportes-panel.hidden {
+    display: none !important;
+  }
+  #reportes-toast.show {
+    display: block !important;
+    transform: translateX(0);
+  }
+</style>
+  </template>
+</body>
+</html>

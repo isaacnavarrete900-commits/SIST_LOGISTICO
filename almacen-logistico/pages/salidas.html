@@ -1,0 +1,182 @@
+<!-- salidas.html — Vista del módulo de Papeletas de Salida de Stock -->
+<div id="salidas-module" class="space-y-6">
+  <!-- Toast de éxito -->
+  <div id="salidas-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="salidas-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Papeleta de Salida</h2>
+      <p class="text-sm text-slate-500">Gestione y documente las salidas de materiales del almacén municipal.</p>
+    </div>
+    <div id="salidas-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Formulario de Registro (Papeleta de Salida) -->
+  <div id="salidas-form-container" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2 border-b border-slate-100 pb-3">
+      <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      Nueva Papeleta de Salida
+    </h3>
+    <form id="salidas-form" class="space-y-6">
+      
+      <!-- Datos de Cabecera -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- N° Correlativo -->
+        <div class="salidas-field">
+          <label for="salida-correlativo" class="block text-sm font-bold text-slate-800 mb-1">N° Correlativo</label>
+          <input type="text" id="salida-correlativo" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm font-mono text-blue-700" readonly placeholder="SALE-XXX">
+        </div>
+
+        <!-- Fecha -->
+        <div class="salidas-field">
+          <label for="salida-fecha" class="block text-sm font-bold text-slate-800 mb-1">Fecha</label>
+          <input type="date" id="salida-fecha" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+        </div>
+
+        <!-- Buscar Área Usuaria (Autocomplete) -->
+        <div class="salidas-field">
+          <label for="salida-area" class="block text-sm font-bold text-slate-800 mb-1">Área Destino</label>
+          <input type="text" id="salida-area" list="salidas-areas-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba código o nombre..." required>
+          <datalist id="salidas-areas-list"></datalist>
+        </div>
+
+        <!-- Responsable (Autocompletado, Readonly) -->
+        <div class="salidas-field">
+          <label for="salida-responsable" class="block text-sm font-bold text-slate-800 mb-1">Responsable Receptor</label>
+          <input type="text" id="salida-responsable" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="Autocompletado">
+        </div>
+      </div>
+
+      <!-- Tabla de Ítems (Materiales a entregar) -->
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Detalle de Materiales</h4>
+          <button type="button" id="btn-agregar-item" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-semibold rounded-lg text-xs transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Agregar ítem
+          </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="w-full text-sm" id="tabla-items-salida">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+                <th class="p-3 text-center w-12">N°</th>
+                <th class="p-3 text-left w-64">Buscar Material (Código/Iniciales)</th>
+                <th class="p-3 text-left">Detalle / Material</th>
+                <th class="p-3 text-left w-36">U. Medida</th>
+                <th class="p-3 text-right w-28">Cant.</th>
+                <th class="p-3 text-center w-16">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-items-salida" class="divide-y divide-slate-100">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sección de Firmas (Vista previa) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-100 pt-6">
+        <!-- Lado izquierdo: Almacén -->
+        <div class="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+          <div class="w-48 border-b-2 border-slate-400 border-dashed mt-8 mb-2"></div>
+          <span id="salida-firma-encargado" class="text-xs font-bold text-slate-700">Encargado de Almacén</span>
+          <span class="text-[10px] text-slate-400">ALMACÉN MUNICIPAL</span>
+        </div>
+
+        <!-- Lado derecho: Área usuaria conforme -->
+        <div class="flex flex-col items-center justify-center p-4 border border-slate-100 rounded-xl bg-slate-50/50">
+          <div class="w-48 border-b-2 border-slate-400 border-dashed mt-8 mb-2"></div>
+          <span id="salida-firma-receptor" class="text-xs font-bold text-slate-700">Responsable del Área</span>
+          <span class="text-[10px] text-slate-400">CONFORME RECEPTOR</span>
+        </div>
+      </div>
+
+      <!-- Botón de Envío -->
+      <div class="flex justify-end pt-2">
+        <button type="submit" id="btn-registrar-salida" class="px-6 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-lg text-sm transition shadow-lg shadow-blue-900/25">
+          Registrar y Guardar Salida
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Últimas Salidas -->
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Últimas Salidas Registradas</h3>
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="salidas-table w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase">
+            <th class="p-3 text-left">Correlativo</th>
+            <th class="p-3 text-left">Fecha</th>
+            <th class="p-3 text-left">Área</th>
+            <th class="p-3 text-left">Responsable</th>
+            <th class="p-3 text-right">N° Ítems</th>
+            <th class="p-3 text-center w-36">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-salidas" class="divide-y divide-slate-100">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-salidas" class="hidden text-center text-sm text-slate-500 py-8">No se han registrado salidas de materiales aún.</p>
+  </div>
+
+  <!-- Modal para ver detalle de salida -->
+  <div id="salidas-view-modal" class="maestros-modal hidden">
+    <div class="maestros-modal-backdrop"></div>
+    <div class="maestros-modal-box max-w-2xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="text-base font-bold text-slate-800" id="salida-view-title">Detalle de Salida</h3>
+        <button type="button" id="salida-view-close" class="p-1 rounded-lg hover:bg-slate-100 text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="salida-view-detail" class="space-y-4 text-sm">
+        <!-- Dinámico -->
+      </div>
+      <div class="flex justify-end gap-3 border-t border-slate-100 pt-4 mt-6">
+        <button type="button" id="btn-imprimir-modal" class="px-4 py-2 text-sm font-semibold text-white bg-blue-800 hover:bg-blue-900 rounded-lg transition">
+          Imprimir Papeleta
+        </button>
+        <button type="button" id="btn-cerrar-modal" class="px-4 py-2 text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .salidas-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .salidas-table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+  }
+  .salidas-table tbody tr:hover { background-color: #f8fafc; }
+  #salidas-toast.show { display: block !important; transform: translateX(0); }
+</style>

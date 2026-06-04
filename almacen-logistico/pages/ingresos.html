@@ -1,0 +1,152 @@
+<!-- ingresos.html — Vista del módulo de Ingresos de Stock -->
+<div id="ingresos-module" class="space-y-6">
+  <!-- Toast de éxito -->
+  <div id="ingresos-toast" class="fixed top-20 right-4 z-[60] hidden transform transition-all duration-300 translate-x-full">
+    <div class="flex items-center gap-3 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium">
+      <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="ingresos-toast-msg">Operación exitosa</span>
+    </div>
+  </div>
+
+  <!-- Encabezado -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Ingreso de Stock</h2>
+      <p class="text-sm text-slate-500">Registre y controle los ingresos de materiales al almacén municipal.</p>
+    </div>
+    <div id="ingresos-role-badge">
+      <!-- Asignado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- Formulario de Registro -->
+  <div id="ingresos-form-container" class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      </svg>
+      Registrar Nuevo Ingreso
+    </h3>
+    <form id="ingresos-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- N° Orden de Compra -->
+      <div class="ingresos-field">
+        <label for="ingreso-oc" class="block text-sm font-bold text-slate-800 mb-1">N° Orden de Compra</label>
+        <input type="text" id="ingreso-oc" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="OC-XXXX" required>
+      </div>
+
+      <!-- Buscar Material (Autocomplete) -->
+      <div class="ingresos-field">
+        <label for="ingreso-material" class="block text-sm font-bold text-slate-800 mb-1">Buscar Material</label>
+        <input type="text" id="ingreso-material" list="materiales-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba código o nombre..." required>
+        <datalist id="materiales-list"></datalist>
+      </div>
+
+      <!-- Unidad de Medida (Autocompletada, Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-unidad" class="block text-sm font-bold text-slate-800 mb-1">Unidad de Medida</label>
+        <input type="text" id="ingreso-unidad" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="Autocompletado">
+      </div>
+
+      <!-- Buscar Área (Autocomplete) -->
+      <div class="ingresos-field col-span-1 md:col-span-2">
+        <label for="ingreso-area" class="block text-sm font-bold text-slate-800 mb-1">Área Solicitante</label>
+        <input type="text" id="ingreso-area" list="areas-list" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="Escriba nombre del área..." required>
+        <datalist id="areas-list"></datalist>
+      </div>
+
+      <!-- Clasificador -->
+      <div class="ingresos-field">
+        <label for="ingreso-clasificador" class="block text-sm font-bold text-slate-800 mb-1">Clasificador</label>
+        <select id="ingreso-clasificador" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+          <option value="">Seleccione clasificador</option>
+        </select>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="ingresos-field">
+        <label for="ingreso-cantidad" class="block text-sm font-bold text-slate-800 mb-1">Cantidad</label>
+        <input type="number" id="ingreso-cantidad" min="1" step="1" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0" required>
+      </div>
+
+      <!-- Precio Unitario -->
+      <div class="ingresos-field">
+        <label for="ingreso-precio" class="block text-sm font-bold text-slate-800 mb-1">Precio Unitario (S/.)</label>
+        <input type="number" id="ingreso-precio" min="0.01" step="0.01" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="0.00" required>
+      </div>
+
+      <!-- Total (Readonly) -->
+      <div class="ingresos-field">
+        <label for="ingreso-total" class="block text-sm font-bold text-slate-800 mb-1">Total (S/.)</label>
+        <input type="text" id="ingreso-total" class="w-full p-2 border-2 border-slate-200 bg-slate-100 rounded-lg text-sm" readonly placeholder="0.00">
+      </div>
+
+      <!-- Fecha -->
+      <div class="ingresos-field">
+        <label for="ingreso-fecha" class="block text-sm font-bold text-slate-800 mb-1">Fecha</label>
+        <input type="date" id="ingreso-fecha" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
+      </div>
+
+      <!-- N° NEA -->
+      <div class="ingresos-field">
+        <label for="ingreso-nea" class="block text-sm font-bold text-slate-800 mb-1">N° NEA</label>
+        <input type="text" id="ingreso-nea" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="NEA-XXXX" required>
+      </div>
+
+      <!-- N° PECOSA -->
+      <div class="ingresos-field">
+        <label for="ingreso-pecosa" class="block text-sm font-bold text-slate-800 mb-1">N° PECOSA</label>
+        <input type="text" id="ingreso-pecosa" class="w-full p-2 border-2 border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:border-blue-500" placeholder="PECOSA-XXXX" required>
+      </div>
+
+      <!-- Botón de Envío -->
+      <div class="col-span-1 md:col-span-3 flex justify-end pt-2">
+        <button type="submit" id="btn-registrar-ingreso" class="px-6 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-lg text-sm transition shadow-lg shadow-blue-900/25">
+          Registrar Ingreso
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla de Últimos Ingresos -->
+  <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+    <h3 class="text-base font-semibold text-slate-800 mb-4">Últimos Ingresos Registrados</h3>
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="ingresos-table w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200">
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Fecha</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">N° OC</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Material</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">Área</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Cant.</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Precio (S/.)</th>
+            <th class="p-3 text-right font-semibold text-slate-600 text-xs uppercase">Total (S/.)</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">NEA</th>
+            <th class="p-3 text-left font-semibold text-slate-600 text-xs uppercase">PECOSA</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-ingresos" class="divide-y divide-slate-100">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+    <p id="empty-ingresos" class="hidden text-center text-sm text-slate-500 py-8">No se han registrado ingresos aún.</p>
+  </div>
+</div>
+
+<style>
+  .ingresos-table th {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .ingresos-table td {
+    padding: 0.75rem 1rem;
+    color: #334155;
+  }
+  .ingresos-table tbody tr:hover { background-color: #f8fafc; }
+  #ingresos-toast.show { display: block !important; transform: translateX(0); }
+</style>
